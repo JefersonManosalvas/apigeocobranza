@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -9,6 +10,29 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _login() {
+    if (_usernameController.text.trim() == 'k' &&
+        _passwordController.text == 'k') {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const HomePage()),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Usuario o contraseña incorrectos')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                                 width: double.infinity,
                                 height: 48,
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: _login,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF087DFA),
                                     foregroundColor: Colors.white,
@@ -108,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               const SizedBox(height: 14),
-                              TextButton(
+                              /*TextButton(
                                 onPressed: () {},
                                 style: TextButton.styleFrom(
                                   foregroundColor: Colors.white,
@@ -123,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
-                              ),
+                              ),*/
                               const SizedBox(height: 22),
                               const Text(
                                 'v1.0.0',
@@ -196,6 +220,9 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
+            controller: _usernameController,
+            textInputAction: TextInputAction.next,
+            autocorrect: false,
             decoration: InputDecoration(
               hintText: 'Usuario',
               hintStyle: const TextStyle(
@@ -212,7 +239,10 @@ class _LoginPageState extends State<LoginPage> {
             child: Divider(height: 1, color: Color(0xFFE1E7EF)),
           ),
           TextField(
+            controller: _passwordController,
             obscureText: _obscurePassword,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _login(),
             decoration: InputDecoration(
               hintText: 'Contraseña',
               hintStyle: const TextStyle(
