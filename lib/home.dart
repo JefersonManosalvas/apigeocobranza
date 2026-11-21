@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'clientes_page.dart';
+import 'mapa_clientes_page.dart';
 import 'services/login.dart';
 
 class HomePage extends StatelessWidget {
@@ -172,7 +173,12 @@ class HomePage extends StatelessWidget {
                   icon: Icons.location_on,
                   color: _green,
                   onTap: () {
-                    // Navegar a Mapa
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            MapaClientesPage(loginResult: loginResult),
+                      ),
+                    );
                   },
                 ),
               ],
