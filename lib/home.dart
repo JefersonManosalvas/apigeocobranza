@@ -10,7 +10,6 @@ class HomePage extends StatelessWidget {
   static const Color _navy = Color(0xFF102E5A);
   static const Color _blue = Color(0xFF0784F9);
   static const Color _green = Color(0xFF16C979);
-  static const Color _purple = Color(0xFF7548E8);
   static const Color _background = Color(0xFFF3F7FC);
 
   @override

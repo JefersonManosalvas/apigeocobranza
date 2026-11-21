@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'home.dart';
 import 'services/login.dart';
 
 class LoginPage extends StatefulWidget {
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               const SizedBox(height: 14),
-                              TextButton(
+                              /*TextButton(
                                 onPressed: () {},
                                 style: TextButton.styleFrom(
                                   foregroundColor: Colors.white,
@@ -179,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
-                              ),
+                              ),*/
                               const SizedBox(height: 22),
                               const Text(
                                 'v1.0.0',
@@ -254,6 +254,7 @@ class _LoginPageState extends State<LoginPage> {
           TextField(
             controller: _usuarioController,
             textInputAction: TextInputAction.next,
+            autocorrect: false,
             decoration: InputDecoration(
               hintText: 'Usuario',
               hintStyle: const TextStyle(
