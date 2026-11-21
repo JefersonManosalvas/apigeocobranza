@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'clientes_page.dart';
 import 'services/login.dart';
 
 class HomePage extends StatelessWidget {
@@ -154,7 +155,12 @@ class HomePage extends StatelessWidget {
                   icon: Icons.credit_card,
                   color: _blue,
                   onTap: () {
-                    // Navegar a Créditos
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            ClientesPage(loginResult: loginResult),
+                      ),
+                    );
                   },
                 ),
 

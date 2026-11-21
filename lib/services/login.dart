@@ -30,11 +30,10 @@ class LoginService {
   final http.Client _client;
 
   LoginService({
-    this.baseUrl =
-        const String.fromEnvironment(
-          'API_BASE_URL',
-          defaultValue: 'https://apigeocobranza.onrender.com',
-        ),
+    this.baseUrl = const String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: 'https://apigeocobranza.onrender.com',
+    ),
     http.Client? client,
   }) : _client = client ?? http.Client();
 
@@ -58,8 +57,7 @@ class LoginService {
           .timeout(const Duration(seconds: 15));
 
       final dynamic decoded = jsonDecode(response.body);
-      final Map<String, dynamic> data =
-          decoded is Map<String, dynamic>
+      final Map<String, dynamic> data = decoded is Map<String, dynamic>
           ? decoded
           : <String, dynamic>{};
 
@@ -70,7 +68,8 @@ class LoginService {
           return LoginResult.fromJson(data);
         }
         throw LoginException(
-          data['mensaje']?.toString() ?? 'La API devolvio una respuesta invalida',
+          data['mensaje']?.toString() ??
+              'La API devolvio una respuesta invalida',
         );
       }
 
