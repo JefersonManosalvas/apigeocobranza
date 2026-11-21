@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'home_page.dart';
+import 'services/login.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -9,6 +11,51 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  final _usuarioController = TextEditingController();
+  final _claveController = TextEditingController();
+  final _loginService = LoginService();
+
+  @override
+  void dispose() {
+    _usuarioController.dispose();
+    _claveController.dispose();
+    _loginService.dispose();
+    super.dispose();
+  }
+
+  Future<void> _iniciarSesion() async {
+    if (_isLoading) return;
+
+    FocusScope.of(context).unfocus();
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _loginService.login(
+        usuario: _usuarioController.text,
+        clave: _claveController.text,
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => HomePage(loginResult: result),
+        ),
+      );
+    } on LoginException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                                 width: double.infinity,
                                 height: 48,
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: _isLoading ? null : _iniciarSesion,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF087DFA),
                                     foregroundColor: Colors.white,
@@ -98,13 +145,22 @@ class _LoginPageState extends State<LoginPage> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
-                                  child: const Text(
-                                    'Iniciar sesión',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
+                                  child: _isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Iniciar sesión',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
                                 ),
                               ),
                               const SizedBox(height: 14),
@@ -196,6 +252,8 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
+            controller: _usuarioController,
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               hintText: 'Usuario',
               hintStyle: const TextStyle(
@@ -212,6 +270,9 @@ class _LoginPageState extends State<LoginPage> {
             child: Divider(height: 1, color: Color(0xFFE1E7EF)),
           ),
           TextField(
+            controller: _claveController,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _iniciarSesion(),
             obscureText: _obscurePassword,
             decoration: InputDecoration(
               hintText: 'Contraseña',

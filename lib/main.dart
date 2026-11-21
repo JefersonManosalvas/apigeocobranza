@@ -213,8 +213,8 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                           );
                         },
-                        child: Positioned(
-                          top: 0,
+                        child: Align(
+                          alignment: Alignment.topCenter,
                           child: Image.asset(
                             'assets/images/puntero.png',
                             width: 65,
