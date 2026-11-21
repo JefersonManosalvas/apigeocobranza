@@ -1,0 +1,325 @@
+ {
+
+"gestores": [
+  {
+    "id": "GEST-001",
+    "nombres": "Alex Potosi",
+    "agencia_id": "AG-001",
+    "estado": "ACTIVO",
+    "usuario": "poto1234",
+    "clave": "12345"
+  },
+  {
+    "id": "GEST-002",
+    "nombres": "Jeferson Manosalvas",
+    "agencia_id": "AG-001",
+    "estado": "ACTIVO",
+    "usuario": "jef1234",
+    "clave": "12345"
+  }
+],
+
+   "socios": [ 
+  {
+    "id": "SOC-1004",
+    "gestor_id": "GEST-001",
+    "agencia_id": "AG-001",
+    "cedula": "1004567891",
+    "nombres": "Luis Fernando Cachimuel",
+    "telefono": "0991112233",
+    "direccion": "Barrio El Calvario, calle principal",
+    "referencia": "Casa de ladrillo con puerta azul",
+    "lat": 0.3421,
+    "lng": -78.2160,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1004/foto1.jpg",
+      "uploads/SOC-1004/foto2.jpg",
+      "uploads/SOC-1004/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1004",
+      "producto": "Microcrédito Comercio",
+      "monto_original": 1500,
+      "saldo_actual": 1100,
+      "cuotas_vencidas": 2,
+      "dias_mora": 45,
+      "interes_mora": 22,
+      "monto_exigible_hoy": 422,
+      "estado": "VENCIDO",
+      "tabla_amortizacion": []
+    }
+  },
+  {
+    "id": "SOC-1005",
+    "gestor_id": "GEST-001",
+    "agencia_id": "AG-001",
+    "cedula": "1005678912",
+    "nombres": "Ana Lucía Pijal",
+    "telefono": "0981122334",
+    "direccion": "Sector La Victoria, calle Sucre",
+    "referencia": "Casa de dos pisos junto a la escuela",
+    "lat": 0.3378,
+    "lng": -78.2190,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1005/foto1.jpg",
+      "uploads/SOC-1005/foto2.jpg",
+      "uploads/SOC-1005/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1005",
+      "producto": "Crédito Agrícola",
+      "monto_original": 1000,
+      "saldo_actual": 750,
+      "cuotas_vencidas": 1,
+      "dias_mora": 18,
+      "interes_mora": 8,
+      "monto_exigible_hoy": 158,
+      "estado": "VENCIDO",
+      "tabla_amortizacion": []
+    }
+  },
+  {
+    "id": "SOC-1006",
+    "gestor_id": "GEST-001",
+    "agencia_id": "AG-001",
+    "cedula": "1006789123",
+    "nombres": "Miguel Ángel Andrango",
+    "telefono": "0992233445",
+    "direccion": "Comunidad Pucará, sector norte",
+    "referencia": "Casa junto al tanque de agua",
+    "lat": 0.3290,
+    "lng": -78.2110,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1006/foto1.jpg",
+      "uploads/SOC-1006/foto2.jpg",
+      "uploads/SOC-1006/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1006",
+      "producto": "Microcrédito Consumo",
+      "monto_original": 800,
+      "saldo_actual": 550,
+      "cuotas_vencidas": 3,
+      "dias_mora": 65,
+      "interes_mora": 25,
+      "monto_exigible_hoy": 275,
+      "estado": "VENCIDO",
+      "tabla_amortizacion": []
+    }
+  },
+  {
+    "id": "SOC-1007",
+    "gestor_id": "GEST-001",
+    "agencia_id": "AG-001",
+    "cedula": "1007891234",
+    "nombres": "Patricia Elizabeth Yamberla",
+    "telefono": "0983344556",
+    "direccion": "Barrio San Miguel, calle Bolívar",
+    "referencia": "Local comercial de abarrotes",
+    "lat": 0.3460,
+    "lng": -78.2250,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1007/foto1.jpg",
+      "uploads/SOC-1007/foto2.jpg",
+      "uploads/SOC-1007/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1007",
+      "producto": "Microcrédito Comercio",
+      "monto_original": 2000,
+      "saldo_actual": 1400,
+      "cuotas_vencidas": 2,
+      "dias_mora": 35,
+      "interes_mora": 20,
+      "monto_exigible_hoy": 420,
+      "estado": "VENCIDO",
+      "tabla_amortizacion": []
+    }
+  },
+  {
+    "id": "SOC-1008",
+    "gestor_id": "GEST-001",
+    "agencia_id": "AG-001",
+    "cedula": "1008912345",
+    "nombres": "José Manuel Simbaña",
+    "telefono": "0994455667",
+    "direccion": "Comunidad San Francisco, sector central",
+    "referencia": "Casa con techo de zinc frente a la cancha",
+    "lat": 0.3340,
+    "lng": -78.2050,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1008/foto1.jpg",
+      "uploads/SOC-1008/foto2.jpg",
+      "uploads/SOC-1008/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1008",
+      "producto": "Crédito Agrícola",
+      "monto_original": 1200,
+      "saldo_actual": 900,
+      "cuotas_vencidas": 1,
+      "dias_mora": 8,
+      "interes_mora": 4,
+      "monto_exigible_hoy": 154,
+      "estado": "VENCIDO",
+      "tabla_amortizacion": []
+    }
+  },
+  {
+    "id": "SOC-1009",
+    "gestor_id": "GEST-002",
+    "agencia_id": "AG-001",
+    "cedula": "1009123456",
+    "nombres": "Verónica Marisol Guatemal",
+    "telefono": "0985566778",
+    "direccion": "Barrio La Merced, calle García Moreno",
+    "referencia": "Casa blanca junto a la panadería",
+    "lat": 0.3500,
+    "lng": -78.2180,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1009/foto1.jpg",
+      "uploads/SOC-1009/foto2.jpg",
+      "uploads/SOC-1009/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1009",
+      "producto": "Microcrédito Comercio",
+      "monto_original": 1800,
+      "saldo_actual": 1300,
+      "cuotas_vencidas": 2,
+      "dias_mora": 52,
+      "interes_mora": 30,
+      "monto_exigible_hoy": 430,
+      "estado": "VENCIDO",
+      "tabla_amortizacion": []
+    }
+  },
+  {
+    "id": "SOC-1010",
+    "gestor_id": "GEST-002",
+    "agencia_id": "AG-001",
+    "cedula": "1010234567",
+    "nombres": "Edgar Ramiro Chasipanta",
+    "telefono": "0996677889",
+    "direccion": "Sector El Rosario, calle principal",
+    "referencia": "Casa de bloque con portón negro",
+    "lat": 0.3260,
+    "lng": -78.2230,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1010/foto1.jpg",
+      "uploads/SOC-1010/foto2.jpg",
+      "uploads/SOC-1010/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1010",
+      "producto": "Crédito Agrícola",
+      "monto_original": 700,
+      "saldo_actual": 400,
+      "cuotas_vencidas": 1,
+      "dias_mora": 15,
+      "interes_mora": 6,
+      "monto_exigible_hoy": 156,
+      "estado": "VENCIDO",
+      "tabla_amortizacion": []
+    }
+  },
+  {
+    "id": "SOC-1011",
+    "gestor_id": "GEST-002",
+    "agencia_id": "AG-001",
+    "cedula": "1011345678",
+    "nombres": "Carmen Beatriz Farinango",
+    "telefono": "0987788990",
+    "direccion": "Comunidad El Abra, sector sur",
+    "referencia": "Casa junto al camino de tierra",
+    "lat": 0.3210,
+    "lng": -78.2140,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1011/foto1.jpg",
+      "uploads/SOC-1011/foto2.jpg",
+      "uploads/SOC-1011/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1011",
+      "producto": "Microcrédito Consumo",
+      "monto_original": 500,
+      "saldo_actual": 250,
+      "cuotas_vencidas": 0,
+      "dias_mora": 0,
+      "interes_mora": 0,
+      "monto_exigible_hoy": 100,
+      "estado": "AL_DIA",
+      "tabla_amortizacion": []
+    }
+  },
+  {
+    "id": "SOC-1012",
+    "gestor_id": "GEST-002",
+    "agencia_id": "AG-001",
+    "cedula": "1012456789",
+    "nombres": "Andrés Santiago Quilca",
+    "telefono": "0998899001",
+    "direccion": "Barrio Central, calle Imbabura",
+    "referencia": "Casa esquinera junto al parque",
+    "lat": 0.3430,
+    "lng": -78.2300,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1012/foto1.jpg",
+      "uploads/SOC-1012/foto2.jpg",
+      "uploads/SOC-1012/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1012",
+      "producto": "Microcrédito Comercio",
+      "monto_original": 2500,
+      "saldo_actual": 1900,
+      "cuotas_vencidas": 4,
+      "dias_mora": 95,
+      "interes_mora": 45,
+      "monto_exigible_hoy": 645,
+      "estado": "VENCIDO",
+      "tabla_amortizacion": []
+    }
+  },
+  {
+    "id": "SOC-1013",
+    "gestor_id": "GEST-002",
+    "agencia_id": "AG-001",
+    "cedula": "1013567890",
+    "nombres": "Gloria Mercedes Chugá",
+    "telefono": "0989900112",
+    "direccion": "Comunidad San José, sector la iglesia",
+    "referencia": "Casa de techo rojo frente a la iglesia",
+    "lat": 0.3540,
+    "lng": -78.2090,
+    "ubicacion_actualizada_en": null,
+    "fotografias_ubicacion": [
+      "uploads/SOC-1013/foto1.jpg",
+      "uploads/SOC-1013/foto2.jpg",
+      "uploads/SOC-1013/foto3.jpg"
+    ],
+    "credito": {
+      "numero_operacion": "CR-2026-1013",
+      "producto": "Crédito Agrícola",
+      "monto_original": 1100,
+      "saldo_actual": 800,
+      "cuotas_vencidas": 2,
+      "dias_mora": 28,
+      "interes_mora": 12,
+      "monto_exigible_hoy": 312,
+      "estado": "VENCIDO",
+      "tabla_amortizacion": []
+    }
+  }
+  ]
+
+}
