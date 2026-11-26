@@ -23,6 +23,8 @@ class Socio {
     required this.telefono,
     required this.direccion,
     required this.referencia,
+    this.ciudad = '',
+    this.parroquia = '',
     required this.latitud,
     required this.longitud,
     required this.credito,
@@ -37,6 +39,8 @@ class Socio {
   final String telefono;
   final String direccion;
   final String referencia;
+  final String ciudad;
+  final String parroquia;
   final double? latitud;
   final double? longitud;
   final Credito credito;
@@ -87,11 +91,17 @@ class Socio {
       telefono: telefono,
       direccion: direccion,
       referencia: referencia,
+      ciudad: _asString(json['ciudad']),
+      parroquia: _asString(json['parroquia']),
       latitud: _asDouble(json['lat']),
       longitud: _asDouble(json['lng']),
       credito: Credito.fromJson(Map<String, dynamic>.from(credito)),
     );
   }
+}
+
+String _asString(dynamic value) {
+  return value is String ? value.trim() : '';
 }
 
 class Credito {
@@ -124,7 +134,9 @@ class Credito {
     if (numeroOperacion is! String ||
         producto is! String ||
         estado is! String) {
-      throw const SociosException('La API devolvió información inválida del crédito');
+      throw const SociosException(
+        'La API devolvió información inválida del crédito',
+      );
     }
 
     return Credito(

@@ -16,6 +16,12 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>geocobranza</string>
+	<key>NSCameraUsageDescription</key>
+	<string>La cámara se usa para adjuntar una foto a una notificación o compromiso.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>La galería se usa para adjuntar una foto a una notificación o compromiso.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>La ubicación se guarda con la notificación o el compromiso.</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

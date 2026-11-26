@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'services/socios.dart';
@@ -18,7 +23,6 @@ class DetalleCreditoPage extends StatelessWidget {
 
   static const _navy = Color(0xFF102E5A);
   static const _blue = Color(0xFF087DFA);
-  static const _green = Color(0xFF16B979);
 
   @override
   Widget build(BuildContext context) {
@@ -41,26 +45,15 @@ class DetalleCreditoPage extends StatelessWidget {
                         const SizedBox(height: 12),
                         _buildCreditCard(),
                         const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _ActionButton(
-                                label: 'Notificar',
-                                icon: Icons.notifications_active,
-                                color: _blue,
-                                onPressed: () {},
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _ActionButton(
-                                label: 'Tomar foto',
-                                icon: Icons.camera_alt,
-                                color: _green,
-                                onPressed: () {},
-                              ),
-                            ),
-                          ],
+                        SizedBox(
+                          width: double.infinity,
+                          child: _ActionButton(
+                            label: 'Notificar',
+                            icon: Icons.notifications_active,
+                            color: _blue,
+                            onPressed: () =>
+                                _showNotificationOptions(context, socio),
+                          ),
                         ),
                         const SizedBox(height: 14),
                         _buildObservations(),
@@ -349,57 +342,7 @@ class DetalleCreditoPage extends StatelessWidget {
   }
 
   Widget _buildGallery(BuildContext context) {
-    return _DetailCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Galería',
-                  style: TextStyle(
-                    color: _navy,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              Text(
-                '${fotoUrls.length} fotos',
-                style: const TextStyle(
-                  color: Color(0xFF61748D),
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          if (fotoUrls.isEmpty)
-            const Text(
-              'No hay fotografías disponibles para este cliente.',
-              style: TextStyle(color: Color(0xFF53677E), fontSize: 12),
-            )
-          else
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final width = (constraints.maxWidth - 16) / 3;
-                return Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: List.generate(
-                    fotoUrls.length,
-                    (index) => _GalleryThumbnail(
-                      imageUrl: fotoUrls[index],
-                      size: width,
-                    ),
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
-    );
+    return _EditableGallery(photoUrls: fotoUrls);
   }
 
   Widget _buildPhotoFallback() {
@@ -418,43 +361,593 @@ class DetalleCreditoPage extends StatelessWidget {
   }
 }
 
-class _GalleryThumbnail extends StatelessWidget {
-  const _GalleryThumbnail({required this.imageUrl, required this.size});
+enum _ManagementType { commitment, notification }
 
-  final String imageUrl;
-  final double size;
+class _ManagementDraft {
+  const _ManagementDraft({
+    required this.type,
+    required this.message,
+    required this.photo,
+    required this.position,
+    required this.commitmentDate,
+  });
+
+  final _ManagementType type;
+  final String message;
+  final Uint8List? photo;
+  final Position? position;
+  final DateTime? commitmentDate;
+}
+
+Future<void> _showNotificationOptions(BuildContext context, Socio socio) async {
+  final type = await showDialog<_ManagementType>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('¿Qué deseas hacer?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(
+              Icons.event_note,
+              color: DetalleCreditoPage._blue,
+            ),
+            title: const Text('Añadir compromiso'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pop(context, _ManagementType.commitment),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(
+              Icons.notifications_active_outlined,
+              color: DetalleCreditoPage._blue,
+            ),
+            title: const Text('Notificar'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pop(context, _ManagementType.notification),
+          ),
+        ],
+      ),
+    ),
+  );
+  if (!context.mounted || type == null) return;
+
+  final draft = await showDialog<_ManagementDraft>(
+    context: context,
+    builder: (context) => Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 440,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+        ),
+        child: _ManagementForm(type: type, customerName: socio.nombre),
+      ),
+    ),
+  );
+  if (!context.mounted || draft == null) return;
+
+  final label = draft.type == _ManagementType.commitment
+      ? 'Compromiso'
+      : 'Notificación';
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        '$label capturado para ${socio.nombre}. '
+        'Ubicación: ${draft.position!.latitude.toStringAsFixed(6)}, '
+        '${draft.position!.longitude.toStringAsFixed(6)}.',
+      ),
+    ),
+  );
+}
+
+class _ManagementForm extends StatefulWidget {
+  const _ManagementForm({required this.type, required this.customerName});
+
+  final _ManagementType type;
+  final String customerName;
+
+  @override
+  State<_ManagementForm> createState() => _ManagementFormState();
+}
+
+class _ManagementFormState extends State<_ManagementForm> {
+  final _imagePicker = ImagePicker();
+  final _messageController = TextEditingController();
+
+  Uint8List? _photo;
+  Position? _position;
+  DateTime? _commitmentDate;
+  bool _isPickingPhoto = false;
+  bool _isGettingLocation = false;
+
+  bool get _isCommitment => widget.type == _ManagementType.commitment;
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickPhoto(ImageSource source) async {
+    if (_isPickingPhoto || _photo != null) return;
+
+    setState(() => _isPickingPhoto = true);
+    try {
+      final file = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+      if (file == null || !mounted) return;
+
+      final bytes = await file.readAsBytes();
+      if (mounted) setState(() => _photo = bytes);
+    } on PlatformException catch (error) {
+      if (!mounted) return;
+      _showMessage(
+        'No se pudo abrir la imagen: ${error.message ?? error.code}',
+      );
+    } on MissingPluginException {
+      if (!mounted) return;
+      _showMessage('La cámara o la galería no están disponibles.');
+    } finally {
+      if (mounted) setState(() => _isPickingPhoto = false);
+    }
+  }
+
+  Future<Position?> _obtainCurrentLocation() async {
+    if (_isGettingLocation) return null;
+
+    setState(() => _isGettingLocation = true);
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        _showMessage(
+          'Activa la ubicación del dispositivo e inténtalo de nuevo.',
+        );
+        return null;
+      }
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        _showMessage('Se necesita permiso de ubicación para guardarla.');
+        return null;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 20),
+        ),
+      );
+      if (!mounted) return null;
+      setState(() => _position = position);
+      return position;
+    } on LocationServiceDisabledException {
+      if (mounted) {
+        _showMessage(
+          'Activa la ubicación del dispositivo e inténtalo de nuevo.',
+        );
+      }
+      return null;
+    } on PermissionDeniedException {
+      if (mounted) {
+        _showMessage('Se necesita permiso de ubicación para guardarla.');
+      }
+      return null;
+    } on TimeoutException {
+      if (mounted) _showMessage('No se pudo obtener la ubicación a tiempo.');
+      return null;
+    } on PlatformException catch (error) {
+      if (mounted) {
+        _showMessage(
+          'No se pudo obtener la ubicación: ${error.message ?? error.code}',
+        );
+      }
+      return null;
+    } on MissingPluginException {
+      if (mounted) {
+        _showMessage('La ubicación no está disponible en este dispositivo.');
+      }
+      return null;
+    } finally {
+      if (mounted) setState(() => _isGettingLocation = false);
+    }
+  }
+
+  Future<void> _saveDraft() async {
+    final position = await _obtainCurrentLocation();
+    if (!mounted || position == null) return;
+
+    Navigator.pop(
+      context,
+      _ManagementDraft(
+        type: widget.type,
+        message: _messageController.text.trim(),
+        photo: _photo,
+        position: position,
+        commitmentDate: _commitmentDate,
+      ),
+    );
+  }
+
+  Future<void> _selectCommitmentDate() async {
+    final today = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _commitmentDate ?? today,
+      firstDate: DateTime(today.year, today.month, today.day),
+      lastDate: DateTime(today.year + 5),
+    );
+    if (date != null && mounted) {
+      setState(() => _commitmentDate = date);
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        showDialog<void>(
-          context: context,
-          builder: (context) => Dialog(
-            child: InteractiveViewer(
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) =>
-                    const SizedBox(
-                      height: 220,
-                      child: Center(
-                        child: Icon(Icons.broken_image_outlined, size: 48),
-                      ),
-                    ),
+    final title = _isCommitment ? 'Añadir compromiso' : 'Notificar';
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: DetalleCreditoPage._navy,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Cerrar',
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          Text(
+            widget.customerName,
+            style: const TextStyle(color: Color(0xFF53677E)),
+          ),
+          if (_isCommitment) ...[
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _selectCommitmentDate,
+              icon: const Icon(Icons.calendar_today),
+              label: Text(
+                _commitmentDate == null
+                    ? 'Seleccionar fecha'
+                    : 'Fecha: ${_commitmentDate!.day}/${_commitmentDate!.month}/${_commitmentDate!.year}',
               ),
             ),
+          ],
+          const SizedBox(height: 12),
+          TextField(
+            controller: _messageController,
+            minLines: 2,
+            maxLines: 4,
+            decoration: InputDecoration(
+              labelText: _isCommitment ? 'Detalle del compromiso' : 'Mensaje',
+              border: const OutlineInputBorder(),
+              alignLabelWithHint: true,
+            ),
           ),
-        );
-      },
-      borderRadius: BorderRadius.circular(9),
-      child: ClipRRect(
+          const SizedBox(height: 16),
+          const Text(
+            'Foto (máximo 1)',
+            style: TextStyle(
+              color: DetalleCreditoPage._navy,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          AspectRatio(
+            aspectRatio: 1.8,
+            child: _photo == null
+                ? Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F7FC),
+                      border: Border.all(color: const Color(0xFFD8E2EF)),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.add_photo_alternate_outlined,
+                      color: Color(0xFF71839A),
+                      size: 36,
+                    ),
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.memory(_photo!, fit: BoxFit.cover),
+                  ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _isPickingPhoto || _photo != null
+                      ? null
+                      : () => _pickPhoto(ImageSource.gallery),
+                  icon: const Icon(Icons.photo_library_outlined),
+                  label: const Text('Subir foto'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: _isPickingPhoto || _photo != null
+                      ? null
+                      : () => _pickPhoto(ImageSource.camera),
+                  icon: const Icon(Icons.camera_alt_outlined),
+                  label: const Text('Tomar foto'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _isGettingLocation ? null : _obtainCurrentLocation,
+            icon: _isGettingLocation
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.my_location),
+            label: Text(
+              _position == null ? 'Obtener ubicación' : 'Actualizar ubicación',
+            ),
+          ),
+          if (_position != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Ubicación obtenida: ${_position!.latitude.toStringAsFixed(6)}, '
+              '${_position!.longitude.toStringAsFixed(6)}',
+              style: const TextStyle(color: Color(0xFF53677E), fontSize: 12),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: FilledButton(
+              onPressed: _isGettingLocation ? null : _saveDraft,
+              child: const Text('Guardar'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EditableGallery extends StatefulWidget {
+  const _EditableGallery({required this.photoUrls});
+
+  final List<String> photoUrls;
+
+  @override
+  State<_EditableGallery> createState() => _EditableGalleryState();
+}
+
+class _EditableGalleryState extends State<_EditableGallery> {
+  static const _maxPhotos = 3;
+
+  final _imagePicker = ImagePicker();
+  late final List<String?> _remotePhotoUrls;
+  late final List<Uint8List?> _localPhotos;
+  bool _isPickingPhoto = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _remotePhotoUrls = List<String?>.generate(
+      _maxPhotos,
+      (index) =>
+          index < widget.photoUrls.length ? widget.photoUrls[index] : null,
+    );
+    _localPhotos = List<Uint8List?>.filled(_maxPhotos, null);
+  }
+
+  int? get _nextAvailableSlot {
+    final index = List<int>.generate(_maxPhotos, (index) => index).firstWhere(
+      (index) => _remotePhotoUrls[index] == null && _localPhotos[index] == null,
+      orElse: () => -1,
+    );
+    return index == -1 ? null : index;
+  }
+
+  Future<void> _pickPhoto(ImageSource source, {int? slot}) async {
+    if (_isPickingPhoto) return;
+    final targetSlot = slot ?? _nextAvailableSlot;
+    if (targetSlot == null) return;
+
+    setState(() => _isPickingPhoto = true);
+    try {
+      final file = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+      if (file == null || !mounted) return;
+
+      final bytes = await file.readAsBytes();
+      if (!mounted) return;
+      setState(() {
+        _localPhotos[targetSlot] = bytes;
+        _remotePhotoUrls[targetSlot] = null;
+      });
+    } on PlatformException catch (error) {
+      if (!mounted) return;
+      _showMessage(
+        'No se pudo abrir la imagen: ${error.message ?? error.code}',
+      );
+    } on MissingPluginException {
+      if (!mounted) return;
+      _showMessage('La cámara o la galería no están disponibles.');
+    } finally {
+      if (mounted) setState(() => _isPickingPhoto = false);
+    }
+  }
+
+  void _showPhoto(int index) {
+    final bytes = _localPhotos[index];
+    final url = _remotePhotoUrls[index];
+    final image = bytes != null
+        ? Image.memory(bytes, fit: BoxFit.contain)
+        : Image.network(
+            url!,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.broken_image_outlined, size: 48),
+          );
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => Dialog(child: InteractiveViewer(child: image)),
+    );
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final photoCount = List<int>.generate(_maxPhotos, (index) => index)
+        .where(
+          (index) =>
+              _localPhotos[index] != null || _remotePhotoUrls[index] != null,
+        )
+        .length;
+
+    return _DetailCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Galería',
+                  style: TextStyle(
+                    color: DetalleCreditoPage._navy,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                '$photoCount/$_maxPhotos fotos',
+                style: const TextStyle(color: Color(0xFF61748D), fontSize: 12),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final width = (constraints.maxWidth - 16) / _maxPhotos;
+              return Row(
+                children: List.generate(
+                  _maxPhotos,
+                  (index) => Padding(
+                    padding: EdgeInsets.only(
+                      right: index == _maxPhotos - 1 ? 0 : 8,
+                    ),
+                    child: SizedBox(
+                      width: width,
+                      height: width,
+                      child: _buildPhotoSlot(index),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _isPickingPhoto || _nextAvailableSlot == null
+                      ? null
+                      : () => _pickPhoto(ImageSource.gallery),
+                  icon: const Icon(Icons.photo_library_outlined),
+                  label: const Text('Subir foto'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: _isPickingPhoto || _nextAvailableSlot == null
+                      ? null
+                      : () => _pickPhoto(ImageSource.camera),
+                  icon: const Icon(Icons.camera_alt_outlined),
+                  label: const Text('Tomar foto'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoSlot(int index) {
+    final bytes = _localPhotos[index];
+    final url = _remotePhotoUrls[index];
+
+    if (bytes == null && url == null) {
+      return Material(
+        color: const Color(0xFFF3F7FC),
         borderRadius: BorderRadius.circular(9),
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: Image.network(
-            imageUrl,
+        child: InkWell(
+          onTap: _isPickingPhoto
+              ? null
+              : () => _pickPhoto(ImageSource.gallery, slot: index),
+          borderRadius: BorderRadius.circular(9),
+          child: const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.add_photo_alternate_outlined,
+                color: Color(0xFF71839A),
+                size: 25,
+              ),
+              SizedBox(height: 4),
+              Text(
+                'Subir foto',
+                style: TextStyle(fontSize: 10, color: Color(0xFF53677E)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final image = bytes != null
+        ? Image.memory(bytes, fit: BoxFit.cover)
+        : Image.network(
+            url!,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => const ColoredBox(
               color: Color(0xFFE7F1FC),
@@ -465,8 +958,33 @@ class _GalleryThumbnail extends StatelessWidget {
                 ),
               ),
             ),
+          );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(9),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned.fill(
+            child: InkWell(onTap: () => _showPhoto(index), child: image),
           ),
-        ),
+          Positioned(
+            right: 2,
+            top: 2,
+            child: IconButton(
+              tooltip: 'Tomar foto para reemplazar',
+              onPressed: _isPickingPhoto
+                  ? null
+                  : () => _pickPhoto(ImageSource.camera, slot: index),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.white.withValues(alpha: 0.9),
+                minimumSize: const Size(32, 32),
+                padding: const EdgeInsets.all(6),
+              ),
+              icon: const Icon(Icons.camera_alt_outlined, size: 18),
+            ),
+          ),
+        ],
       ),
     );
   }
